@@ -14,13 +14,15 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 # ✅ Create Gemini model instance
 gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 
-# ✅ Initialize Flask app
-app = Flask(__name__, template_folder='template')
+# ✅ Initialize Flask app (uses 'templates' folder by default)
+app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/wireless', methods=['GET', 'POST'])
 def wireless():
@@ -38,6 +40,7 @@ def wireless():
         return render_template('wireless.html', results=results, explanation=explanation, input_data=input_data)
     return render_template('wireless.html')
 
+
 def calculate_wireless_rates(params):
     results = {}
     results['sampler_rate'] = params['sampling_rate']
@@ -47,6 +50,7 @@ def calculate_wireless_rates(params):
     results['interleaver_rate'] = results['channel_encoder_rate']
     results['burst_formatting_rate'] = results['channel_encoder_rate'] / params['burst_size']
     return results
+
 
 @app.route('/ofdm', methods=['GET', 'POST'])
 def ofdm():
@@ -64,6 +68,7 @@ def ofdm():
         return render_template('ofdm.html', results=results, explanation=explanation, input_data=input_data)
     return render_template('ofdm.html')
 
+
 def calculate_ofdm_rates(params):
     results = {}
     results['resource_element_rate'] = params['bits_per_symbol'] * params['subcarrier_spacing']
@@ -73,6 +78,7 @@ def calculate_ofdm_rates(params):
     total_bandwidth = params['subcarriers'] * params['subcarrier_spacing']
     results['spectral_efficiency'] = results['max_transmission_capacity'] / total_bandwidth
     return results
+
 
 @app.route('/link_budget', methods=['GET', 'POST'])
 def link_budget():
@@ -90,6 +96,7 @@ def link_budget():
         return render_template('link_budget.html', results=results, explanation=explanation, input_data=input_data)
     return render_template('link_budget.html')
 
+
 def calculate_link_budget(params):
     results = {}
     speed_of_light = 3e8
@@ -100,6 +107,7 @@ def calculate_link_budget(params):
     rss = eirp + params['receiver_gain'] - fspl - params['system_losses']
     results['received_signal_strength'] = rss
     return results
+
 
 @app.route('/cellular', methods=['GET', 'POST'])
 def cellular():
@@ -117,6 +125,7 @@ def cellular():
         return render_template('cellular.html', results=results, explanation=explanation, input_data=input_data)
     return render_template('cellular.html')
 
+
 def calculate_cellular_design(params):
     results = {}
     total_traffic = params['area_size'] * params['subscriber_density'] * params['traffic_per_user']
@@ -131,6 +140,7 @@ def calculate_cellular_design(params):
     results['channels_per_cell'] = np.ceil(traffic_per_cell * sector_factor)
     results['system_capacity'] = results['channels_per_cell'] * num_cells
     return results
+
 
 def get_ai_explanation(scenario, inputs, results):
     prompt = f"""
@@ -154,5 +164,9 @@ Use bullet points for clarity and keep the explanation under 200 words.
     except Exception as e:
         return f"❌ Gemini Error: {str(e)}"
 
+
+# ✅ Entry point
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
