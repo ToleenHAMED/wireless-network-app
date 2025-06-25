@@ -1,0 +1,94 @@
+<!-- templates/wireless.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Wireless Communication</title>
+  <style>
+    body {
+      background-image: url('https://sirinsoftware.com/wp-content/uploads/2021/06/2021-06-22-14-42-31-880x495-1.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      background-color: #001f3f; /* solid navy color */
+      padding: 20px;
+      margin: 50px auto;
+      max-width: 600px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+    form .form-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .form-group label {
+      flex: 1;
+      margin-right: 10px;
+    }
+    .form-group input {
+      flex: 2;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+    }
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    h2, h3 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Wireless Communication System</h2>
+    <form method="post">
+      <div class="form-group">
+        <label>Sampling Rate:</label>
+        <input type="text" name="sampling_rate">
+      </div>
+      <div class="form-group">
+        <label>Bits per Sample:</label>
+        <input type="text" name="bits_per_sample">
+      </div>
+      <div class="form-group">
+        <label>Source Coding Rate:</label>
+        <input type="text" name="source_coding_rate">
+      </div>
+      <div class="form-group">
+        <label>Channel Coding Rate:</label>
+        <input type="text" name="channel_coding_rate">
+      </div>
+      <div class="form-group">
+        <label>Interleaver Depth:</label>
+        <input type="text" name="interleaver_depth">
+      </div>
+      <div class="form-group">
+        <label>Burst Size:</label>
+        <input type="text" name="burst_size">
+      </div>
+      <input type="submit" value="Compute">
+    </form>
+    {% if results %}
+      <h3>Results</h3>
+      <ul>
+        {% for k, v in results.items() %}<li>{{ k }}: {{ v }}</li>{% endfor %}
+      </ul>
+      <h3>Explanation</h3>
+      <p>{{ explanation }}</p>
+    {% endif %}
+  </div>
+</body>
+</html>

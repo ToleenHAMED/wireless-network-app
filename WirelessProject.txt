@@ -1,0 +1,14 @@
+WirelessProject/
+├── app.py
+├── templates/          # This folder must be named exactly "templates"
+│   ├── base.html
+│   ├── index.html
+│   ├── wireless.html
+│   ├── ofdm.html
+│   ├── link_budget.html
+│   └── cellular.html
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── script.js

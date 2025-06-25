@@ -1,0 +1,114 @@
+<!-- templates/link_budget.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Link Budget Calculator</title>
+  <style>
+    body {
+      background-image: url('https://contentgrid.homedepot-static.com/hdus/en_US/DTCCOMNEW/Articles/how-to-choose-the-best-antenna-for-your-TV-section-1.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      font-family: Arial, sans-serif;
+      color: #fff;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.75);
+      padding: 25px 30px;
+      margin: 50px auto;
+      max-width: 600px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    form .form-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .form-group input {
+      flex: 2;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    ul {
+      list-style-type: square;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Link Budget Calculator</h2>
+    <form method="post">
+      <div class="form-group">
+        <label>Transmitter Power (dBm):</label>
+        <input type="text" name="transmitter_power">
+      </div>
+      <div class="form-group">
+        <label>Transmitter Gain (dB):</label>
+        <input type="text" name="transmitter_gain">
+      </div>
+      <div class="form-group">
+        <label>Receiver Gain (dB):</label>
+        <input type="text" name="receiver_gain">
+      </div>
+      <div class="form-group">
+        <label>Frequency (MHz):</label>
+        <input type="text" name="frequency">
+      </div>
+      <div class="form-group">
+        <label>Distance (km):</label>
+        <input type="text" name="distance">
+      </div>
+      <div class="form-group">
+        <label>System Losses (dB):</label>
+        <input type="text" name="system_losses">
+      </div>
+      <input type="submit" value="Compute">
+    </form>
+
+    {% if results %}
+      <h3>Results</h3>
+      <ul>
+        {% for k, v in results.items() %}
+          <li>{{ k }}: {{ v }}</li>
+        {% endfor %}
+      </ul>
+
+      <h3>Explanation</h3>
+      <p>{{ explanation }}</p>
+    {% endif %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cellular System Design</title>
+  <style>
+    body {
+      background-image: url('https://static.vecteezy.com/system/resources/previews/034/624/784/non_2x/telecommunications-technology-transmission-tower-in-front-of-world-map-with-technology-icons-it-represents-the-development-of-advanced-communications-networks-to-distribute-signals-around-the-world-vector.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      font-family: Arial, sans-serif;
+      color: #fff;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.75);
+      padding: 25px 30px;
+      margin: 50px auto;
+      max-width: 600px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    form .form-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .form-group input {
+      flex: 2;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    ul {
+      list-style-type: square;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Cellular System Design</h2>
+    <form method="post">
+      <div class="form-group">
+        <label>Area Size (km²):</label>
+        <input type="text" name="area_size">
+      </div>
+      <div class="form-group">
+        <label>Subscriber Density:</label>
+        <input type="text" name="subscriber_density">
+      </div>
+      <div class="form-group">
+        <label>Traffic per User (Erlangs):</label>
+        <input type="text" name="traffic_per_user">
+      </div>
+      <div class="form-group">
+        <label>Cell Radius (km):</label>
+        <input type="text" name="cell_radius">
+      </div>
+      <div class="form-group">
+        <label>Frequency Reuse Factor:</label>
+        <input type="text" name="frequency_reuse_factor">
+      </div>
+      <div class="form-group">
+        <label>Sectorization:</label>
+        <input type="text" name="sectorization" placeholder="none, 3-sector, 6-sector">
+      </div>
+      <input type="submit" value="Compute">
+    </form>
+
+    {% if results %}
+      <h3>Results</h3>
+      <ul>
+        {% for k, v in results.items() %}
+          <li>{{ k }}: {{ v }}</li>
+        {% endfor %}
+      </ul>
+
+      <h3>Explanation</h3>
+      <p>{{ explanation }}</p>
+    {% endif %}
+  </div>
+</body>
+</html>
