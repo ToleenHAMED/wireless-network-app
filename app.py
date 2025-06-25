@@ -99,13 +99,17 @@ def link_budget():
 
 def calculate_link_budget(params):
     results = {}
-    speed_of_light = 3e8
-    fspl = 20 * np.log10(params['distance']) + 20 * np.log10(params['frequency']) + 20 * np.log10(4 * np.pi / speed_of_light)
+    # FIXED FSPL formula
+    fspl = 32.45 + 20 * np.log10(params['frequency']) + 20 * np.log10(params['distance'])
     results['path_loss'] = fspl
+
+    # EIRP and RSS
     eirp = params['transmitter_power'] + params['transmitter_gain']
     results['eirp'] = eirp
+
     rss = eirp + params['receiver_gain'] - fspl - params['system_losses']
     results['received_signal_strength'] = rss
+
     return results
 
 
