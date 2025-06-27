@@ -71,48 +71,48 @@
     <h2>Cellular System Design</h2>
     <form method="post">
       <div class="form-group">
-        <label>Total Area (sq unit):</label>
-        <input type="text" name="area_size">
+        <label>Total Area (sq units):</label>
+        <input type="text" name="total_area" required>
       </div>
       <div class="form-group">
         <label>Max Number of Users:</label>
-        <input type="text" name="max_users">
+        <input type="text" name="max_users" required>
       </div>
       <div class="form-group">
         <label>Average Call Duration (min):</label>
-        <input type="text" name="avg_call_duration">
+        <input type="text" name="avg_call_duration_min" required>
       </div>
       <div class="form-group">
-        <label>Average Call Rate (calls/day):</label>
-        <input type="text" name="avg_call_rate">
+        <label>Average Call Rate per User (calls/day):</label>
+        <input type="text" name="avg_call_rate_per_user" required>
       </div>
       <div class="form-group">
         <label>Time Slots per Carrier:</label>
-        <input type="text" name="slots_per_carrier">
+        <input type="text" name="time_slots_per_carrier" required>
       </div>
       <div class="form-group">
         <label>Grade of Service (GOS):</label>
-        <input type="text" name="gos">
+        <input type="text" name="grade_of_service" placeholder="e.g., 0.02" required>
       </div>
       <div class="form-group">
-        <label>Signal to Interference Ratio (SIR):</label>
-        <input type="text" name="sir">
+        <label>Signal to Interference Ratio (SIR in dB):</label>
+        <input type="text" name="sir" required>
       </div>
       <div class="form-group">
-        <label>P0 (Ref. Power in dB):</label>
-        <input type="text" name="p0">
+        <label>P0 (Reference Power in dB):</label>
+        <input type="text" name="P0" required>
       </div>
       <div class="form-group">
         <label>Receiver Sensitivity (dB):</label>
-        <input type="text" name="receiver_sensitivity">
+        <input type="text" name="receiver_sensitivity" required>
       </div>
       <div class="form-group">
-        <label>d0 (Ref. Distance in m):</label>
-        <input type="text" name="d0">
+        <label>d0 (Reference Distance in meters):</label>
+        <input type="text" name="d0" required>
       </div>
       <div class="form-group">
         <label>Path Loss Exponent:</label>
-        <input type="text" name="path_loss_exponent">
+        <input type="text" name="path_loss_exponent" required>
       </div>
       <input type="submit" value="Compute">
     </form>
