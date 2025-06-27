@@ -83,12 +83,12 @@ def calculate_wireless_rates(params):
 def ofdm():
     if request.method == 'POST':
         input_data = {
-            'subcarriers': int(request.form['subcarriers']),
+            'BW_resource_block': float(request.form['BW_resource_block']),
             'subcarrier_spacing': float(request.form['subcarrier_spacing']),
-            'symbols_per_slot': int(request.form['symbols_per_slot']),
-            'slots_per_frame': int(request.form['slots_per_frame']),
-            'bits_per_symbol': int(request.form['bits_per_symbol']),
-            'resource_blocks': int(request.form['resource_blocks'])
+            'num_ofdm_symbols_per_resource_block': int(request.form['num_ofdm_symbols_per_resource_block']),
+            'resource_block_duration': float(request.form['resource_block_duration']),
+            'num_modulated_bits': int(request.form['num_modulated_bits']),
+            'num_of_parallel_resource_blocks': int(request.form['num_of_parallel_resource_blocks'])
         }
         results = calculate_ofdm_rates(input_data)
         explanation = get_ai_explanation("ofdm", input_data, results)
@@ -97,13 +97,38 @@ def ofdm():
 
 
 def calculate_ofdm_rates(params):
+    from math import log, round
+
     results = {}
-    results['resource_element_rate'] = params['bits_per_symbol'] * params['subcarrier_spacing']
-    results['ofdm_symbol_rate'] = results['resource_element_rate'] * params['subcarriers']
-    results['resource_block_rate'] = results['ofdm_symbol_rate'] * params['symbols_per_slot']
-    results['max_transmission_capacity'] = results['resource_block_rate'] * params['resource_blocks'] * params['slots_per_frame']
-    total_bandwidth = params['subcarriers'] * params['subcarrier_spacing']
-    results['spectral_efficiency'] = results['max_transmission_capacity'] / total_bandwidth
+    
+    BW_resource_block = params['BW_resource_block']
+    subcarrier_spacing = params['subcarrier_spacing']
+    num_symbols = params['num_ofdm_symbols_per_resource_block']
+    duration = params['resource_block_duration']
+    mod_bits = params['num_modulated_bits']
+    parallel_blocks = params['num_of_parallel_resource_blocks']
+
+    # Step 1: Bits per resource element
+    num_bits_resource_element = round(log(mod_bits, 2))
+    results['num_bits_resource_element'] = num_bits_resource_element
+
+    # Step 2: Bits per OFDM symbol
+    num_bits_per_ofdm_symbol = round(num_bits_resource_element * (BW_resource_block / subcarrier_spacing))
+    results['num_bits_per_ofdm_symbol'] = num_bits_per_ofdm_symbol
+
+    # Step 3: Bits per resource block
+    num_bits_per_resource_block = num_bits_per_ofdm_symbol * num_symbols
+    results['num_bits_per_resource_block'] = num_bits_per_resource_block
+
+    # Step 4: Max transmission rate
+    max_transmission_rate = round(num_bits_per_resource_block * parallel_blocks / duration)
+    results['max_transmission_rate'] = max_transmission_rate
+
+    # Step 5: Spectral efficiency
+    total_bandwidth = BW_resource_block * parallel_blocks
+    spectral_efficiency = max_transmission_rate / total_bandwidth
+    results['spectral_efficiency'] = spectral_efficiency
+
     return results
 
 

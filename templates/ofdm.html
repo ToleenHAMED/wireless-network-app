@@ -1,4 +1,3 @@
-<!-- templates/ofdm.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,28 +63,28 @@
     <h2>OFDM System</h2>
     <form method="post">
       <div class="form-group">
-        <label>Subcarriers:</label>
-        <input type="text" name="subcarriers">
+        <label>BW per Resource Block (kHz):</label>
+        <input type="text" name="BW_resource_block">
       </div>
       <div class="form-group">
-        <label>Subcarrier Spacing:</label>
+        <label>Subcarrier Spacing (kHz):</label>
         <input type="text" name="subcarrier_spacing">
       </div>
       <div class="form-group">
-        <label>Symbols per Slot:</label>
-        <input type="text" name="symbols_per_slot">
+        <label>OFDM Symbols per Resource Block:</label>
+        <input type="text" name="num_ofdm_symbols_per_resource_block">
       </div>
       <div class="form-group">
-        <label>Slots per Frame:</label>
-        <input type="text" name="slots_per_frame">
+        <label>Resource Block Duration (ms):</label>
+        <input type="text" name="resource_block_duration">
       </div>
       <div class="form-group">
-        <label>Bits per Symbol:</label>
-        <input type="text" name="bits_per_symbol">
+        <label>Number of Modulated Bits:</label>
+        <input type="text" name="num_modulated_bits">
       </div>
       <div class="form-group">
-        <label>Resource Blocks:</label>
-        <input type="text" name="resource_blocks">
+        <label>Parallel Resource Blocks:</label>
+        <input type="text" name="num_of_parallel_resource_blocks">
       </div>
       <input type="submit" value="Compute">
     </form>
