@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import google.generativeai as genai
 
+
 # ✅ Load environment variables
 load_dotenv(dotenv_path=Path('.') / '.env')
 
@@ -195,12 +196,17 @@ def calculate_link_budget(params):
 def cellular():
     if request.method == 'POST':
         input_data = {
-            'area_size': float(request.form['area_size']),
-            'subscriber_density': float(request.form['subscriber_density']),
-            'traffic_per_user': float(request.form['traffic_per_user']),
-            'cell_radius': float(request.form['cell_radius']),
-            'frequency_reuse_factor': int(request.form['frequency_reuse_factor']),
-            'sectorization': request.form['sectorization']
+            'time_slots_per_carrier': int(request.form['time_slots_per_carrier']),
+            'total_area': float(request.form['total_area']),
+            'max_users': int(request.form['max_users']),
+            'avg_call_duration_min': float(request.form['avg_call_duration_min']),
+            'avg_call_rate_per_user': float(request.form['avg_call_rate_per_user']),
+            'grade_of_service': float(request.form['grade_of_service']),
+            'sir': float(request.form['sir']),
+            'P0': float(request.form['P0']),
+            'receiver_sensitivity': float(request.form['receiver_sensitivity']),
+            'd0': float(request.form['d0']),
+            'path_loss_exponent': float(request.form['path_loss_exponent'])
         }
         results = calculate_cellular_design(input_data)
         explanation = get_ai_explanation("cellular", input_data, results)
@@ -209,19 +215,71 @@ def cellular():
 
 
 def calculate_cellular_design(params):
+    from math import pi, ceil, log10, sqrt
+    import pandas as pd
+
     results = {}
-    total_traffic = params['area_size'] * params['subscriber_density'] * params['traffic_per_user']
-    results['total_traffic'] = total_traffic
-    cell_area = np.pi * params['cell_radius']**2
-    results['cell_area'] = cell_area
-    num_cells = np.ceil(params['area_size'] / cell_area)
-    results['num_cells'] = int(num_cells)
-    traffic_per_cell = total_traffic / num_cells
-    results['traffic_per_cell'] = traffic_per_cell
-    sector_factor = {'none': 1, '3-sector': 3, '6-sector': 6}.get(params['sectorization'], 1)
-    results['channels_per_cell'] = np.ceil(traffic_per_cell * sector_factor)
-    results['system_capacity'] = results['channels_per_cell'] * num_cells
+
+    # ✅ Load Erlang-B table from raw GitHub URL (MUST be public and raw)
+    erlang_url = 'https://raw.githubusercontent.com/ToleenHAMED/wireless-network-app/main/Erlang-B-Table.csv'
+    df = pd.read_csv(erlang_url)
+
+    # ✅ Fixed cluster size options and interference factor
+    cluster_sizes = [1, 3, 4, 7, 9, 12, 13, 16, 19, 21, 28]
+    NB = 6
+
+    # ✅ Helper: Convert dB to linear
+    def _dB_to_linear(db):
+        return 10 ** (db / 10)
+
+    # ✅ Step 1: Traffic calculations
+    traffic_per_user = (params['avg_call_duration_min'] / 60) * params['avg_call_rate_per_user']
+    total_traffic = traffic_per_user * params['max_users']
+    results['traffic_per_user'] = round(traffic_per_user, 4)
+    results['total_traffic'] = round(total_traffic, 2)
+
+    # ✅ Step 2: Max distance for reliable communication
+    max_distance = ((params['receiver_sensitivity'] / _dB_to_linear(params['P0'])) ** (-1 / params['path_loss_exponent'])) * params['d0']
+    results['max_distance_reliable'] = round(max_distance, 2)
+
+    # ✅ Step 3: Max cell size (hexagonal cell approximation)
+    max_cell_size = (3 * sqrt(3) / 2) * (max_distance ** 2)
+    results['max_cell_size'] = round(max_cell_size, 2)
+
+    # ✅ Step 4: Number of cells in the total area
+    total_cells = ceil(params['total_area'] / max_cell_size)
+    results['total_number_of_cells'] = total_cells
+
+    # ✅ Step 5: Traffic per cell
+    traffic_per_cell = total_traffic / total_cells
+    results['traffic_per_cell'] = round(traffic_per_cell, 2)
+
+    # ✅ Step 6: Cluster size using SIR
+    x = ((_dB_to_linear(params['sir']) * NB) ** (2 / params['path_loss_exponent'])) / 3
+    cluster_size = next(N for N in cluster_sizes if N >= x)
+    results['cluster_size'] = cluster_size
+
+    # ✅ Step 7: Lookup channels required using Erlang B table and GOS
+    column_name = str(int(params['grade_of_service'] * 100)) + '%'
+    if column_name not in df.columns:
+        raise ValueError(f"Grade of Service {column_name} not found in Erlang-B table.")
+    
+    try:
+        search_value = df[df[column_name] >= traffic_per_cell][column_name].iloc[0]
+        channels_required = df[df[column_name] == search_value].iloc[0, 0]
+    except IndexError:
+        raise ValueError("Traffic value exceeds Erlang-B table range.")
+    
+    results['channels_required'] = int(channels_required)
+
+    # ✅ Step 8: Calculate carriers
+    carriers_per_cell = ceil(channels_required / params['time_slots_per_carrier'])
+    results['carriers_per_cell'] = carriers_per_cell
+    results['carriers_in_system'] = carriers_per_cell * cluster_size
+
     return results
+
+
 
 
 def get_ai_explanation(scenario, inputs, results):
