@@ -43,28 +43,36 @@ def wireless():
 def calculate_wireless_rates(params):
     results = {}
 
-    # Step 1: Sampling rate (Nyquist)
-    sampling_rate = 2 * params['bandwidth_khz'] * 1e3  # in Hz
-    results['sampler_rate'] = sampling_rate
+    # Use original form field names
+    BW = params['bandwidth_khz'] * 1e3  # Convert from kHz to Hz
+    quantizer_bits = params['quantizer_bits']
+    Rs = params['source_encoder_rate']
+    Rc = params['channel_encoder_rate']
+    interleaver_bits = params['interleaver_bits']
+    burst_size = params['burst_size']
 
-    # Step 2: Quantizer rate
-    quantizer_rate = sampling_rate * params['quantizer_bits']
-    results['quantizer_rate'] = quantizer_rate
+    # Step 1: Sampling rate
+    fs = 2 * BW
+    results['sampler_rate'] = fs
 
-    # Step 3: Source encoder output
-    source_encoded_rate = quantizer_rate * params['source_encoder_rate']
-    results['source_encoder_rate'] = source_encoded_rate
+    # Step 2: Quantizer output bit rate
+    quantizer_out_bit_rate = quantizer_bits * fs
+    results['quantizer_rate'] = quantizer_out_bit_rate
 
-    # Step 4: Channel encoder output
-    channel_encoded_rate = source_encoded_rate / params['channel_encoder_rate']
-    results['channel_encoder_rate'] = channel_encoded_rate
+    # Step 3: Source encoder output bit rate
+    source_encoder_out_bit_rate = quantizer_out_bit_rate * Rs
+    results['source_encoder_rate'] = source_encoder_out_bit_rate
 
-    # Step 5: Interleaver output
-    interleaver_rate = channel_encoded_rate / params['interleaver_bits']
-    results['interleaver_rate'] = interleaver_rate
+    # Step 4: Channel encoder output bit rate
+    channel_encoder_out_bit_rate = source_encoder_out_bit_rate * (1 / Rc)
+    results['channel_encoder_rate'] = channel_encoder_out_bit_rate
 
-    # Step 6: Burst formatting output
-    burst_formatting_rate = interleaver_rate / params['burst_size']
+    # Step 5: Interleaver output bit rate
+    interleaver_out_bit_rate = channel_encoder_out_bit_rate
+    results['interleaver_rate'] = interleaver_out_bit_rate
+
+    # Step 6: Burst formatting output bit rate
+    burst_formatting_rate = interleaver_out_bit_rate / burst_size
     results['burst_formatting_rate'] = burst_formatting_rate
 
     return results
