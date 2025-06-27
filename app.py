@@ -131,36 +131,62 @@ def calculate_ofdm_rates(params):
 
     return results
 
-
 @app.route('/link_budget', methods=['GET', 'POST'])
 def link_budget():
     if request.method == 'POST':
         input_data = {
-            'transmitter_power': float(request.form['transmitter_power']),
-            'transmitter_gain': float(request.form['transmitter_gain']),
-            'receiver_gain': float(request.form['receiver_gain']),
+            'path_loss_dB': float(request.form['path_loss_dB']),
             'frequency': float(request.form['frequency']),
-            'distance': float(request.form['distance']),
-            'system_losses': float(request.form['system_losses'])
+            'transmitter_antenna_gain_dB': float(request.form['transmitter_antenna_gain_dB']),
+            'receiver_antenna_gain_dB': float(request.form['receiver_antenna_gain_dB']),
+            'data_rate': float(request.form['data_rate']),
+            'feed_line_loss_dB': float(request.form['feed_line_loss_dB']),
+            'other_losses_dB': float(request.form['other_losses_dB']),
+            'fade_margin_dB': float(request.form['fade_margin_dB']),
+            'receiver_amp_gain_dB': float(request.form['receiver_amp_gain_dB']),
+            'transmitter_amp_gain_dB': float(request.form['transmitter_amp_gain_dB']),
+            'noise_figure_dB': float(request.form['noise_figure_dB']),
+            'noise_temp_kelvin': float(request.form['noise_temp_kelvin']),
+            'link_margin_dB': float(request.form['link_margin_dB']),
+            'SNR_per_bit_dB': float(request.form['SNR_per_bit_dB']),
         }
+
         results = calculate_link_budget(input_data)
         explanation = get_ai_explanation("link_budget", input_data, results)
         return render_template('link_budget.html', results=results, explanation=explanation, input_data=input_data)
     return render_template('link_budget.html')
 
-
 def calculate_link_budget(params):
+    def to_dB(value):
+        return 10 * np.log10(value)
+
     results = {}
-    # FIXED FSPL formula
-    fspl = 32.45 + 20 * np.log10(params['frequency']) + 20 * np.log10(params['distance'])
-    results['path_loss'] = fspl
+    K_dB = -228.6  # Boltzmann constant in dB
 
-    # EIRP and RSS
-    eirp = params['transmitter_power'] + params['transmitter_gain']
-    results['eirp'] = eirp
+    # Compute power received (dB)
+    power_received_dB = (
+        params['link_margin_dB']
+        + to_dB(params['noise_temp_kelvin'])
+        + K_dB
+        + params['noise_figure_dB']
+        + to_dB(params['data_rate'])
+        + params['SNR_per_bit_dB']
+    )
+    results['power_received_dB'] = power_received_dB
 
-    rss = eirp + params['receiver_gain'] - fspl - params['system_losses']
-    results['received_signal_strength'] = rss
+    # Compute power transmitted (dB)
+    power_transmitted_dB = (
+        power_received_dB
+        + params['path_loss_dB']
+        + params['feed_line_loss_dB']
+        + params['other_losses_dB']
+        + params['fade_margin_dB']
+        - params['transmitter_antenna_gain_dB']
+        - params['receiver_antenna_gain_dB']
+        - params['receiver_amp_gain_dB']
+        - params['transmitter_amp_gain_dB']
+    )
+    results['power_transmitted_dB'] = power_transmitted_dB
 
     return results
 
