@@ -97,7 +97,7 @@ def ofdm():
 
 
 def calculate_ofdm_rates(params):
-    from math import log, round
+    from math import log
 
     results = {}
     
