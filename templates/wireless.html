@@ -1,4 +1,3 @@
-<!-- templates/wireless.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,7 +12,7 @@
       font-family: Arial, sans-serif;
     }
     .container {
-      background-color: #001f3f; /* solid navy color */
+      background-color: #001f3f;
       padding: 20px;
       margin: 50px auto;
       max-width: 600px;
@@ -56,35 +55,41 @@
     <h2>Wireless Communication System</h2>
     <form method="post">
       <div class="form-group">
-        <label>Sampling Rate:</label>
-        <input type="text" name="sampling_rate">
+        <label>Bandwidth (KHz):</label>
+        <input type="number" step="0.01" name="bandwidth_khz" required>
       </div>
       <div class="form-group">
-        <label>Bits per Sample:</label>
-        <input type="text" name="bits_per_sample">
+        <label>Quantizer Bits:</label>
+        <input type="number" name="quantizer_bits" required>
       </div>
       <div class="form-group">
-        <label>Source Coding Rate:</label>
-        <input type="text" name="source_coding_rate">
+        <label>Source Encoder Rate (Rs):</label>
+        <input type="number" step="0.01" name="source_encoder_rate" required>
       </div>
       <div class="form-group">
-        <label>Channel Coding Rate:</label>
-        <input type="text" name="channel_coding_rate">
+        <label>Channel Encoder Rate (Rc):</label>
+        <input type="number" step="0.01" name="channel_encoder_rate" required>
       </div>
       <div class="form-group">
-        <label>Interleaver Depth:</label>
-        <input type="text" name="interleaver_depth">
+        <label>Interleaver Bits:</label>
+        <input type="number" name="interleaver_bits" required>
       </div>
       <div class="form-group">
         <label>Burst Size:</label>
-        <input type="text" name="burst_size">
+        <input type="number" name="burst_size" required>
       </div>
       <input type="submit" value="Compute">
     </form>
+
     {% if results %}
       <h3>Results</h3>
       <ul>
-        {% for k, v in results.items() %}<li>{{ k }}: {{ v }}</li>{% endfor %}
+        <li>Sampler Rate: {{ results.sampler_rate }} Hz</li>
+        <li>Quantizer Rate: {{ results.quantizer_rate }} bps</li>
+        <li>Source Encoder Output Rate: {{ results.source_encoder_rate }} bps</li>
+        <li>Channel Encoder Output Rate: {{ results.channel_encoder_rate }} bps</li>
+        <li>Interleaver Output Rate: {{ results.interleaver_rate }} bps</li>
+        <li>Burst Formatting Output Rate: {{ results.burst_formatting_rate }} bps</li>
       </ul>
       <h3>Explanation</h3>
       <p>{{ explanation }}</p>

@@ -28,11 +28,11 @@ def index():
 def wireless():
     if request.method == 'POST':
         input_data = {
-            'sampling_rate': float(request.form['sampling_rate']),
-            'bits_per_sample': int(request.form['bits_per_sample']),
-            'source_coding_rate': float(request.form['source_coding_rate']),
-            'channel_coding_rate': float(request.form['channel_coding_rate']),
-            'interleaver_depth': int(request.form['interleaver_depth']),
+            'bandwidth_khz': float(request.form['bandwidth_khz']),
+            'quantizer_bits': int(request.form['quantizer_bits']),
+            'source_encoder_rate': float(request.form['source_encoder_rate']),
+            'channel_encoder_rate': float(request.form['channel_encoder_rate']),
+            'interleaver_bits': int(request.form['interleaver_bits']),
             'burst_size': int(request.form['burst_size'])
         }
         results = calculate_wireless_rates(input_data)
@@ -40,16 +40,35 @@ def wireless():
         return render_template('wireless.html', results=results, explanation=explanation, input_data=input_data)
     return render_template('wireless.html')
 
-
 def calculate_wireless_rates(params):
     results = {}
-    results['sampler_rate'] = params['sampling_rate']
-    results['quantizer_rate'] = params['sampling_rate'] * params['bits_per_sample']
-    results['source_encoder_rate'] = results['quantizer_rate'] * params['source_coding_rate']
-    results['channel_encoder_rate'] = results['source_encoder_rate'] / params['channel_coding_rate']
-    results['interleaver_rate'] = results['channel_encoder_rate']
-    results['burst_formatting_rate'] = results['channel_encoder_rate'] / params['burst_size']
+
+    # Step 1: Sampling rate (Nyquist)
+    sampling_rate = 2 * params['bandwidth_khz'] * 1e3  # in Hz
+    results['sampler_rate'] = sampling_rate
+
+    # Step 2: Quantizer rate
+    quantizer_rate = sampling_rate * params['quantizer_bits']
+    results['quantizer_rate'] = quantizer_rate
+
+    # Step 3: Source encoder output
+    source_encoded_rate = quantizer_rate * params['source_encoder_rate']
+    results['source_encoder_rate'] = source_encoded_rate
+
+    # Step 4: Channel encoder output
+    channel_encoded_rate = source_encoded_rate / params['channel_encoder_rate']
+    results['channel_encoder_rate'] = channel_encoded_rate
+
+    # Step 5: Interleaver output
+    interleaver_rate = channel_encoded_rate / params['interleaver_bits']
+    results['interleaver_rate'] = interleaver_rate
+
+    # Step 6: Burst formatting output
+    burst_formatting_rate = interleaver_rate / params['burst_size']
+    results['burst_formatting_rate'] = burst_formatting_rate
+
     return results
+
 
 
 @app.route('/ofdm', methods=['GET', 'POST'])
